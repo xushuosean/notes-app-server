@@ -8,14 +8,16 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY yarn.lock ./
 
+RUN yarn config set registry https://registry.npmmirror.com
+
 # 安装依赖（包括devDependencies）
-RUN npm ci
+RUN yarn
 
 # 复制所有源代码
 COPY . .
 
 # 运行构建
-RUN npm run build
+RUN yarn build
 
 # 第二阶段：生产运行阶段
 FROM node:18-alpine AS production

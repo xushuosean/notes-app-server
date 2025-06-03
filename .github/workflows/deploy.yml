@@ -33,9 +33,9 @@ jobs:
               git pull origin master
 
               cat <<EOF > .env
-              clientId=${{ secrets.CLIENT_ID }}
-              clientSecret=${{ secrets.CLIENT_SECRET }}
-              EOF
+            clientId=${{ secrets.CLIENT_ID }}
+            clientSecret=${{ secrets.CLIENT_SECRET }}
+            EOF
 
               docker build -t notes .
               docker stop notes-app || true

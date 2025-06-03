@@ -2,8 +2,8 @@ name: Deploy Docker to Aliyun
 
 on:
   push:
-    branches: [ "master" ]
-  workflow_dispatch:  # 可选：手动触发
+    branches: ['master']
+  workflow_dispatch: # 可选：手动触发
 
 jobs:
   deploy:
@@ -20,22 +20,25 @@ jobs:
           key: ${{ secrets.ALIYUN_SSH_KEY }}
           port: ${{ secrets.ALIYUN_PORT }}
           script: |
-            cd  ~/workspace/notes-app-server
+            mkdir -p ~/workspace
+
+            # 如果目录不存在就 clone，一次性操作
+            if [ ! -d ~/workspace/notes-app-server ]; then
+                cd ~/workspace
+                git clone https://github.com/你的仓库路径.git notes-app-server
+            fi
+
+            cd ~/workspace/notes-app-server
 
             git pull origin master
-            
+
             cat <<EOF > .env
             clientId=${{ secrets.CLIENT_ID }}
             clientSecret=${{ secrets.CLIENT_SECRET }}
             EOF
 
-            # 3. 构建Docker镜像（基于新代码）
             docker build -t notes .
-
-            # 4. 重启容器
             docker stop notes-app || true
             docker rm notes-app || true
             docker run -d --name notes-app -p 3000:3000 notes
-
-            # 可选：清理旧镜像
             docker system prune -f

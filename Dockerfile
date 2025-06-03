@@ -1,41 +1,36 @@
 # 第一阶段：构建阶段
-FROM node:latest AS builder
+FROM node:lts AS builder
 
-# 设置工作目录
 WORKDIR /usr/src/app
 
-# 复制包管理文件
-COPY package*.json ./
-COPY yarn.lock ./
+# 复制 yarn 的依赖文件
+COPY package.json yarn.lock ./
 
+# 设置淘宝镜像源，加速构建
 RUN yarn config set registry https://registry.npmmirror.com
 
-# 安装依赖（包括devDependencies）
-RUN yarn
+# 安装开发依赖
+RUN yarn install
 
-# 复制所有源代码
+# 复制所有源码（避免复制 .git 和 node_modules）
 COPY . .
 
-# 运行构建
+# 构建生产代码
 RUN yarn build
 
-# 第二阶段：生产运行阶段
-FROM node:latest AS production
+# 第二阶段：仅拷贝运行所需部分
+FROM node:lts AS production
 
-# 设置工作目录
 WORKDIR /usr/src/app
 
-# 从构建阶段复制必要的文件
-COPY --from=builder /usr/src/app/package*.json ./
+COPY --from=builder /usr/src/app/package.json ./
 COPY --from=builder /usr/src/app/node_modules ./node_modules
 COPY --from=builder /usr/src/app/dist ./dist
 
-# 设置环境变量
-ENV NODE_ENV production
-ENV PORT 3000
+ENV NODE_ENV=production
+ENV PORT=3000
 
-# 暴露端口
 EXPOSE 3000
 
-# 启动命令 - 使用你package.json中的start:prod脚本
+# 启动 NestJS（package.json 的 "start:prod"）
 CMD ["npm", "run", "start:prod"]

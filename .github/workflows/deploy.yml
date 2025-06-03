@@ -21,13 +21,13 @@ jobs:
           port: ${{ secrets.ALIYUN_PORT }}
           script: |
             # 1. 进入项目目录（假设项目已克隆到服务器）
-            cd  ~/wrokkspace/notes-app-server
+            cd  ~/wrokspace/notes-app-server
 
             # 2. 拉取最新代码（需配置Git凭据或SSH Key）
             git pull origin master
             
-            echo 'clientId=${{ secrets.CLIENT_ID }}' >  ~/wrokkspace/notes-app-server/.env &&
-            echo 'clientSecret=${{ secrets.CLIENT_SECRET }}' >>  ~/wrokkspace/notes-app-server/.env
+            echo 'clientId=${{ secrets.CLIENT_ID }}' >  ~/wrokspace/notes-app-server/.env &&
+            echo 'clientSecret=${{ secrets.CLIENT_SECRET }}' >>  ~/wrokspace/notes-app-server/.env
 
             # 3. 构建Docker镜像（基于新代码）
             docker build -t notes .

@@ -1,5 +1,5 @@
 # 第一阶段：构建阶段
-FROM node:18-alpine AS builder
+FROM node:latest AS builder
 
 # 设置工作目录
 WORKDIR /usr/src/app
@@ -20,7 +20,7 @@ COPY . .
 RUN yarn build
 
 # 第二阶段：生产运行阶段
-FROM node:18-alpine AS production
+FROM node:latest AS production
 
 # 设置工作目录
 WORKDIR /usr/src/app

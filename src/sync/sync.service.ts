@@ -20,38 +20,46 @@ export class SyncService {
         }
       }));
 
-      const [noteBlob, categoryBlob] = await Promise.all([
-        firstValueFrom(this.httpService.post(`https://api.github.com/repos/${username}/${dataRepoName}/git/blobs`, {
-          content: JSON.stringify(notes, null, 2),
-        }, {
-          headers: {
-            Authorization: `token ${accessToken}`,
-          },
-        })),
-        firstValueFrom(this.httpService.post(`https://api.github.com/repos/${username}/${dataRepoName}/git/blobs`, {
-          content: JSON.stringify(categories, null, 2),
-        }, {
-          headers: {
-            Authorization: `token ${accessToken}`,
-          },
-        })),
-      ]);
+
+
+      // const [noteBlob, categoryBlob] = await Promise.all([
+      //   firstValueFrom(this.httpService.post(`https://api.github.com/repos/${username}/${dataRepoName}/git/blobs`, {
+      //     content: JSON.stringify(notes, null, 2),
+      //   }, {
+      //     headers: {
+      //       Authorization: `token ${accessToken}`,
+      //     },
+      //   })),
+      //   firstValueFrom(this.httpService.post(`https://api.github.com/repos/${username}/${dataRepoName}/git/blobs`, {
+      //     content: JSON.stringify(categories, null, 2),
+      //   }, {
+      //     headers: {
+      //       Authorization: `token ${accessToken}`,
+      //     },
+      //   })),
+      // ]);
+
+      const blobs = await Promise.all(
+        notes.map(async (note) => {
+          return await firstValueFrom(this.httpService.post(`https://api.github.com/repos/${username}/${dataRepoName}/git/blobs`, {
+            content: JSON.stringify(note, null, 2),
+          }, {
+            headers: {
+              Authorization: `token ${accessToken}`,
+            },
+          }))
+        })
+      )
 
       // Create tree path
-      const treeItems = [
-        {
-          path: 'notes.json',
-          sha: noteBlob.data.sha,
+      const treeItems = blobs.map((item, index) => {
+        return {
+          path: notes?.[index]?.id,
+          sha: item.data.sha,
           mode: '100644',
           type: 'blob',
-        },
-        {
-          path: 'categories.json',
-          sha: categoryBlob.data.sha,
-          mode: '100644',
-          type: 'blob',
-        },
-      ]
+        }
+      })
 
       // Create tree
       // https://docs.github.com/en/free-pro-team@latest/rest/reference/git#create-a-tree
@@ -75,7 +83,7 @@ export class SyncService {
           Authorization: `token ${accessToken}`,
         }
       }))
-      
+
       // Update a reference
       // https://docs.github.com/en/free-pro-team@latest/rest/reference/git#update-a-reference
       await firstValueFrom(this.httpService.post(`https://api.github.com/repos/${username}/${dataRepoName}/git/refs/heads/master`, {

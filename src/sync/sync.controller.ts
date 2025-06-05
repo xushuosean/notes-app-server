@@ -7,20 +7,15 @@ import { SyncService } from "./sync.service";
 export class SyncController {
   constructor(private syncService: SyncService) {}
   @Post('/sync')
-  async sync(@User() user: any, @Cookies('githubAccessToken') accessToken: string, @Body('notes') notes: any, @Body('categories') categories: any) {
-    if (!notes || !categories) {
+  async sync(@User() user: any, @Cookies('githubAccessToken') accessToken: string, @Body('notes') notes: any) {
+    if (!notes) {
       throw Error('nos')
     }
-    await this.syncService.sync(user, accessToken, notes, categories);
+    await this.syncService.sync(user, accessToken, notes);
   }
 
   @Post('/sync/notes')
   async getNotes(@User() user: any, @Cookies('githubAccessToken') accessToken: string) {
     return await this.syncService.getNotes(accessToken, user);
-  }
-
-  @Post('/sync/categories')
-  async getCategories(@User() user: any, @Cookies('githubAccessToken') accessToken: string) {
-    return await this.syncService.getCategories(accessToken, user);
   }
 }

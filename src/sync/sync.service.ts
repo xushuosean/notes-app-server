@@ -1,5 +1,6 @@
 import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
+import { Octokit } from '@octokit/rest';
 import * as dayjs from "dayjs";
 import { firstValueFrom } from "rxjs";
 import { User } from "./sync.interface";
@@ -10,7 +11,7 @@ const dataRepoName = 'notes-data';
 export class SyncService {
   constructor(private httpService: HttpService) { }
 
-  async sync(userData: User, accessToken: string, notes, categories) {
+  async sync(userData: User, accessToken: string, notes) {
     const username = userData.login;
 
     try {
@@ -19,25 +20,6 @@ export class SyncService {
           Authorization: `token ${accessToken}`,
         }
       }));
-
-
-
-      // const [noteBlob, categoryBlob] = await Promise.all([
-      //   firstValueFrom(this.httpService.post(`https://api.github.com/repos/${username}/${dataRepoName}/git/blobs`, {
-      //     content: JSON.stringify(notes, null, 2),
-      //   }, {
-      //     headers: {
-      //       Authorization: `token ${accessToken}`,
-      //     },
-      //   })),
-      //   firstValueFrom(this.httpService.post(`https://api.github.com/repos/${username}/${dataRepoName}/git/blobs`, {
-      //     content: JSON.stringify(categories, null, 2),
-      //   }, {
-      //     headers: {
-      //       Authorization: `token ${accessToken}`,
-      //     },
-      //   })),
-      // ]);
 
       const blobs = await Promise.all(
         notes.map(async (note) => {
@@ -102,46 +84,37 @@ export class SyncService {
   async getNotes(accessToken, userData) {
     const username = userData.login
 
-    try {
-      const { data } = await firstValueFrom(this.httpService.get(`https://api.github.com/repos/${username}/${dataRepoName}/contents/notes.json`, {
-        headers: {
-          Authorization: `token ${accessToken}`,
-        }
-      }))
-
-      const notes = Buffer.from(data.content, 'base64').toString()
-
-      try {
-        JSON.parse(notes)
-      } catch (error) {
-        throw new Error(error.message || 'Must be valid JSON.')
-      }
-
-      return notes;
-    } catch (error) {
-      throw new Error(error.message || 'Something went wrong while fetching note data')
-    }
-  }
-
-  async getCategories(accessToken, userData) {
-    const username = userData.login
+    const oc = new Octokit({
+      auth: accessToken
+    })
 
     try {
-      const { data } = await firstValueFrom(this.httpService.get(`https://api.github.com/repos/${username}/${dataRepoName}/contents/categories.json`, {
-        headers: {
-          Authorization: `token ${accessToken}`,
+      const { data: dd } = await oc.rest.repos.getContent({
+        owner: username,
+        repo: dataRepoName,
+        path: 'content/posts',
+      })
+
+      const fileList: any[] = [];
+
+      if (Array.isArray(dd)) {
+        for (const item of dd) {
+          const { data } = await oc.rest.repos.getContent({
+            owner: username,
+            repo: 'blogsv5',
+            path: item.path,
+          });
+          if ('content' in data) {
+            fileList.push({
+              id: item.sha,
+              name: item.name,
+              content: Buffer.from(data.content || '', 'base64').toString('utf-8'),
+            })
+          }
         }
-      }))
-
-      const categories = Buffer.from(data.content, 'base64').toString()
-
-      try {
-        JSON.parse(categories)
-      } catch (error) {
-        throw new Error(error.message || 'Must be valid JSON.')
       }
 
-      return categories;
+      return fileList;
     } catch (error) {
       throw new Error(error.message || 'Something went wrong while fetching note data')
     }

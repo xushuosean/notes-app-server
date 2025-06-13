@@ -1124,25 +1124,6 @@
   resolved "https://registry.npmmirror.com/@octokit/openapi-types/-/openapi-types-25.1.0.tgz#5a72a9dfaaba72b5b7db375fd05e90ca90dc9682"
   integrity sha512-idsIggNXUKkk0+BExUn1dQ92sfysJrje03Q0bv0e+KPLrvyqZF8MnBpFz8UNfYDwB3Ie7Z0TByjWfzxt7vseaA==
 
-"@octokit/plugin-paginate-rest@^13.0.1":
-  version "13.0.1"
-  resolved "https://registry.npmmirror.com/@octokit/plugin-paginate-rest/-/plugin-paginate-rest-13.0.1.tgz#5ed914064fea62694e7def7bb19bcc8cd17ad504"
-  integrity sha512-m1KvHlueScy4mQJWvFDCxFBTIdXS0K1SgFGLmqHyX90mZdCIv6gWBbKRhatxRjhGlONuTK/hztYdaqrTXcFZdQ==
-  dependencies:
-    "@octokit/types" "^14.1.0"
-
-"@octokit/plugin-request-log@^6.0.0":
-  version "6.0.0"
-  resolved "https://registry.npmmirror.com/@octokit/plugin-request-log/-/plugin-request-log-6.0.0.tgz#de1c1e557df6c08adb631bf78264fa741e01b317"
-  integrity sha512-UkOzeEN3W91/eBq9sPZNQ7sUBvYCqYbrrD8gTbBuGtHEuycE4/awMXcYvx6sVYo7LypPhmQwwpUe4Yyu4QZN5Q==
-
-"@octokit/plugin-rest-endpoint-methods@^16.0.0":
-  version "16.0.0"
-  resolved "https://registry.npmmirror.com/@octokit/plugin-rest-endpoint-methods/-/plugin-rest-endpoint-methods-16.0.0.tgz#ba30ca387fc2ac8bd93cf9f951174736babebd97"
-  integrity sha512-kJVUQk6/dx/gRNLWUnAWKFs1kVPn5O5CYZyssyEoNYaFedqZxsfYs7DwI3d67hGz4qOwaJ1dpm07hOAD1BXx6g==
-  dependencies:
-    "@octokit/types" "^14.1.0"
-
 "@octokit/request-error@^7.0.0":
   version "7.0.0"
   resolved "https://registry.npmmirror.com/@octokit/request-error/-/request-error-7.0.0.tgz#48ae2cd79008315605d00e83664891a10a5ddb97"
@@ -1161,17 +1142,7 @@
     fast-content-type-parse "^3.0.0"
     universal-user-agent "^7.0.2"
 
-"@octokit/rest@^22.0.0":
-  version "22.0.0"
-  resolved "https://registry.npmmirror.com/@octokit/rest/-/rest-22.0.0.tgz#9026f47dacba9c605da3d43cce9432c4c532dc5a"
-  integrity sha512-z6tmTu9BTnw51jYGulxrlernpsQYXpui1RK21vmXn8yF5bp6iX16yfTtJYGK5Mh1qDkvDOmp2n8sRMcQmR8jiA==
-  dependencies:
-    "@octokit/core" "^7.0.2"
-    "@octokit/plugin-paginate-rest" "^13.0.1"
-    "@octokit/plugin-request-log" "^6.0.0"
-    "@octokit/plugin-rest-endpoint-methods" "^16.0.0"
-
-"@octokit/types@^14.0.0", "@octokit/types@^14.1.0":
+"@octokit/types@^14.0.0":
   version "14.1.0"
   resolved "https://registry.npmmirror.com/@octokit/types/-/types-14.1.0.tgz#3bf9b3a3e3b5270964a57cc9d98592ed44f840f2"
   integrity sha512-1y6DgTy8Jomcpu33N+p5w58l6xyt55Ar2I91RPiIA0xCJBXyUAhXCcmZaDWSANiha7R9a6qJJ2CRomGPZ6f46g==

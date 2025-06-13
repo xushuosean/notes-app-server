@@ -1,6 +1,6 @@
 import { HttpService } from "@nestjs/axios";
 import { Injectable } from "@nestjs/common";
-import { Octokit } from '@octokit/rest';
+import { Octokit } from '@octokit/core';
 import * as dayjs from "dayjs";
 import { firstValueFrom } from "rxjs";
 import { User } from "./sync.interface";
@@ -89,21 +89,23 @@ export class SyncService {
     })
 
     try {
-      const { data: dd } = await oc.rest.repos.getContent({
+      const { data: dd } = await oc.request(`GET /repos/{owner}/{repo}/contents`, {
         owner: username,
         repo: dataRepoName,
-        path: 'content/posts',
       })
+
+      console.log(dd, 'hereisdd')
 
       const fileList: any[] = [];
 
       if (Array.isArray(dd)) {
         for (const item of dd) {
-          const { data } = await oc.rest.repos.getContent({
+          const { data } = await oc.request(`GET /repos/{owner}/{repo}/contents/{path}`, {
             owner: username,
-            repo: 'blogsv5',
+            repo: dataRepoName,
             path: item.path,
           });
+          console.log(data, 'here data')
           if ('content' in data) {
             fileList.push({
               id: item.sha,
@@ -118,5 +120,73 @@ export class SyncService {
     } catch (error) {
       throw new Error(error.message || 'Something went wrong while fetching note data')
     }
+  }
+
+  async getRepos(accessToken: string, pageNum: number, pageSize: number) {
+    const oc = new Octokit({
+      auth: accessToken
+    })
+
+    try {
+      const { data } = await oc.request("GET /user/repos", {
+        page: pageNum,
+        per_page: pageSize, // 每页数量（最大 100）
+        sort: "updated", // 按更新时间排序（可选：created, pushed, full_name）
+        direction: "desc", // 降序排列
+      });
+
+      return data.map(item => {
+        return {
+          name: item.name,
+          fullName: item.full_name,
+          id: item.id,
+          desc: item.description,
+        }
+      })
+    } catch (error) {
+      throw new Error(error.message || 'Something went wrong while fetching note data')
+    }
+  }
+
+  async getRepoPath(accessToken: string, userData: any, repo: string, path: string) {
+    const username = userData.login
+
+    const oc = new Octokit({
+      auth: accessToken,
+    })
+
+    const { data } = await oc.request(`GET /repos/{owner}/{repo}/contents/{path}`, {
+      owner: username,
+      repo,
+      path,
+    });
+
+    if (!Array.isArray(data)) return [];
+
+    console.log(data, 'sddd')
+    return data
+      .filter(item => item.type === 'dir')
+      .map(item => {
+        return {
+          name: item.name,
+          path: item.path,
+          type: item.type,
+          repo,
+        }
+      })
+  }
+
+  saveDataRepo(
+   path: string
+  ) {
+    return {
+      name: 'githubDataRepoPath',
+      value: path,
+      options: {
+        httpOnly: true,
+        maxAge: 86400000,
+        secure: process.env.NODE_ENV === 'production',
+      },
+    };
   }
 }
